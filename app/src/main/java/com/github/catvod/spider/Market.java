@@ -67,6 +67,7 @@ public class Market extends Spider {
             Response response = OkHttp.newCall(action);
             File file = Path.create(new File(Path.download(), Uri.parse(action).getLastPathSegment()));
             download(file, response.body().byteStream(), Double.parseDouble(response.header("Content-Length", "1")));
+            if (file.getName().startsWith("__") &&file.getName().endsWith(".png")) FileUtil.unzip(file, Path.root());
             if (file.getName().endsWith(".zip")) FileUtil.unzip(file, Path.download());
             if (file.getName().endsWith(".apk")) FileUtil.openFile(file);
             else Result.notify("下載完成");

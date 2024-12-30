@@ -22,6 +22,8 @@ public class Path {
     }
 
     public static File download() {
+        mkdir(new File(root() + File.separator + "Download"));
+        mkdir(new File(root() + File.separator + "tvfan"));
         return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     }
 

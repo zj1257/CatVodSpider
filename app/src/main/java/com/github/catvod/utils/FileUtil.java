@@ -31,7 +31,7 @@ public class FileUtil {
             while (entries.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
                 File out = new File(path, entry.getName());
-                if (entry.isDirectory()) out.mkdirs();
+                if (entry.isDirectory()) Path.mkdir(out);
                 else Path.copy(zip.getInputStream(entry), out);
             }
         } catch (Exception e) {

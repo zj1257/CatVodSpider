@@ -13,6 +13,7 @@ import com.github.catvod.net.OkHttp;
 import com.github.catvod.utils.FileUtil;
 import com.github.catvod.utils.Path;
 import com.github.catvod.utils.Util;
+import com.github.catvod.utils.Notify;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -110,7 +111,7 @@ public class Market extends Spider {
             String text = data.getList().get(index).getCopy();
             if (!text.isEmpty()) {
                 if (text.startsWith("__")) {
-                    Result.notify(text.substring(2, text.length()));
+                    Notify.show(text.substring(2, text.length()));
                 } else {
                     Util.copy(text);
                 }

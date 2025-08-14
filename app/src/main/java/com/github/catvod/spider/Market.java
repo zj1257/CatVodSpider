@@ -110,7 +110,7 @@ public class Market extends Spider {
             String text = data.getList().get(index).getCopy();
             if (!text.isEmpty()) {
                 if (text.startsWith("__")) {
-                    Notify.show(text.substring(2, text.length()));
+                    Result.notify(text.substring(2, text.length()));
                 } else {
                     Util.copy(text);
                 }

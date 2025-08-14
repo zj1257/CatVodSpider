@@ -23,6 +23,7 @@ public class Path {
     }
 
     public static File download() {
+        mkdir(new File(root() + File.separator + "Download"));
         return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     }
 

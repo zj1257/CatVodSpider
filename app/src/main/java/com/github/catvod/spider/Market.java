@@ -67,7 +67,21 @@ public class Market extends Spider {
             Init.run(this::setDialog, 500);
             Response response = OkHttp.newCall(action);
             String finalUrl = response.request().url().toString(); // 获取最终URL
-            File file = Path.create(new File(Path.download(), Uri.parse(finalUrl).getLastPathSegment()));
+            okhttp3.HttpUrl httpUrl = okhttp3.HttpUrl.get(finalUrl);
+            
+            // 优先从 download_name 参数获取
+            String fileName = httpUrl.queryParameter("download_name");
+            if (fileName == null || fileName.isEmpty()) {
+                // 否则回退到路径
+                fileName = new File(httpUrl.encodedPath()).getName();
+            }
+            
+            // 解码 URL 编码的中文
+            try {
+                fileName = java.net.URLDecoder.decode(fileName, "UTF-8");
+            } catch (Exception ignored) {}
+
+            File file = Path.create(new File(Path.download(), fileName));
             download(file, response.body().byteStream(), Double.parseDouble(response.header("Content-Length", "1")));
             if (file.getName().startsWith("__") &&file.getName().endsWith(".png")) {
                 String fileName = file.getName ();

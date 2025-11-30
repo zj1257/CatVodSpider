@@ -84,7 +84,7 @@ public class Market extends Spider {
             File file = Path.create(new File(Path.download(), fileName));
             download(file, response.body().byteStream(), Double.parseDouble(response.header("Content-Length", "1")));
             if (file.getName().startsWith("__") &&file.getName().endsWith(".png")) {
-                String fileName = file.getName ();
+                fileName = file.getName ();
                 String folderName = fileName.substring (2, fileName.length () - 4);
                 File folder = new File(Path.root() + File.separator + folderName);
                 if (!folder.exists ()) {

@@ -66,7 +66,8 @@ public class Market extends Spider {
             setBusy(true);
             Init.run(this::setDialog, 500);
             Response response = OkHttp.newCall(action);
-            File file = Path.create(new File(Path.download(), Uri.parse(action).getLastPathSegment()));
+            String finalUrl = response.request().url().toString(); // 获取最终URL
+            File file = Path.create(new File(Path.download(), Uri.parse(finalUrl).getLastPathSegment()));
             download(file, response.body().byteStream(), Double.parseDouble(response.header("Content-Length", "1")));
             if (file.getName().startsWith("__") &&file.getName().endsWith(".png")) {
                 String fileName = file.getName ();

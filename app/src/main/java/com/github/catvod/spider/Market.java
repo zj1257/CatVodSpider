@@ -22,6 +22,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 import okhttp3.Response;
 
@@ -41,8 +43,37 @@ public class Market extends Spider {
 
     @Override
     public void init(Context context, String extend) throws Exception {
-        if (extend.startsWith("http")) extend = OkHttp.string(extend);
-        datas = Data.arrayFrom(extend);
+        // 预处理 extend：如果包含 $，则拆分并合并内容
+        if (extend.contains("$")) {
+            String[] urls = extend.split("\\$"); // 按 $ 拆分 URL
+            Map<String, Data> uniqueDataMap = new LinkedHashMap<>(); // 用于去重，保留首次出现顺序
+
+            for (String url : urls) {
+                url = url.trim();
+                if (!url.isEmpty()) {
+                    try {
+                        String content = OkHttp.string(url); // 获取 URL 内容
+                        List<Data> dataList = Data.arrayFrom(content); // 解析为 List<Data>
+
+                        // 去重处理：仅保留第一次出现的 name
+                        for (Data data : dataList) {
+                            if (!uniqueDataMap.containsKey(data.getName())) {
+                                uniqueDataMap.put(data.getName(), data);
+                            }
+                        }
+                    } catch (Exception e) {
+                        Notify.show(e.getMessage());
+                    }
+                }
+            }
+
+            // 将去重后的数据转换为 JSON 字符串
+            List<Data> mergedDataList = new ArrayList<>(uniqueDataMap.values());
+            datas = mergedDataList;
+        } else if (extend.startsWith("http")) {
+            extend = OkHttp.string(extend);
+            datas = Data.arrayFrom(extend);
+        }
         Init.checkPermission();
     }
 

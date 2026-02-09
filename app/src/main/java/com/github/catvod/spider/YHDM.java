@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  */
 public class YHDM extends Spider {
 
-    private static String siteUrl = "https://www.857fans.com";
+    private static String siteUrl = "https://d2883ce011d2398b.tbdm01.cc/";
     private final Map<String, String> configCache = new HashMap<>();
 
     private Map<String, String> getHeader() {

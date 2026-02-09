@@ -19,10 +19,17 @@ import java.util.Locale;
 
 public class Jable extends Spider {
 
-    private static final String siteUrl = "https://jable.tv";
-    private static final String cateUrl = siteUrl + "/categories/";
-    private static final String detailUrl = siteUrl + "/videos/";
-    private static final String searchUrl = siteUrl + "/search/";
+    private static String siteUrl = "https://jable.tv";
+    private static String cateUrl;
+    private static String detailUrl;
+    private static String searchUrl;
+    @Override
+    public void init(Context context, String extend) throws Exception {
+        if (!extend.isEmpty()) siteUrl = extend;
+        cateUrl = siteUrl + "/categories/";
+        detailUrl = siteUrl + "/videos/";
+        searchUrl = siteUrl + "/search/";
+    }
 
     private HashMap<String, String> getHeaders() {
         HashMap<String, String> headers = new HashMap<>();

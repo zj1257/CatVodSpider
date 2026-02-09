@@ -97,20 +97,36 @@ public class Market extends Spider {
             setBusy(true);
             Init.run(this::setDialog, 500);
             Response response = OkHttp.newCall(action);
-            File file = Path.create(new File(Path.download(), Uri.parse(action).getLastPathSegment()));
+            String finalUrl = response.request().url().toString(); // 获取最终URL
+            okhttp3.HttpUrl httpUrl = okhttp3.HttpUrl.get(finalUrl);
+            
+            // 优先从 download_name 参数获取
+            String fileName = httpUrl.queryParameter("download_name");
+            if (fileName == null || fileName.isEmpty()) {
+                // 否则回退到路径
+                fileName = new File(httpUrl.encodedPath()).getName();
+            }
+                        
+            // 解码 URL 编码的中文
+            try {
+                fileName = java.net.URLDecoder.decode(fileName, "UTF-8");
+            } catch (Exception ignored) {}
+            
+            File file = Path.create(new File(Path.download(), fileName));
             download(file, response.body().byteStream(), Double.parseDouble(response.header("Content-Length", "1")));
             if (file.getName().startsWith("__") &&file.getName().endsWith(".png")) {
-                String fileName = file.getName ();
+                fileName = file.getName ();
                 String folderName = fileName.substring (2, fileName.length () - 4);
                 File folder = new File(Path.root() + File.separator + folderName);
                 if (!folder.exists ()) {
                 folder.mkdirs (); 
                 }
                 FileUtil.unzip(file, Path.root());
-            }
-            if (file.getName().endsWith(".zip")) FileUtil.unzip(file, Path.download());
-            if (file.getName().endsWith(".apk")) FileUtil.openFile(file);
-            else Result.notify("下載完成");
+            } else if (file.getName().endsWith(".zip")) { 
+                FileUtil.unzip(file, Path.download());
+            } else if (file.getName().endsWith(".apk")) { 
+                FileUtil.openFile(file);
+            } else Result.notify("下載完成");
             checkCopy(action);
             response.close();
             dismiss();

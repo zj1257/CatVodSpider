@@ -110,8 +110,7 @@ public class Market extends Spider {
             
             // 2. 最后回退到 URL 路径（使用 path() 而非 encodedPath()）
             if (fileName == null || fileName.isEmpty()) {
-                String path = httpUrl.path(); // 已解码
-                fileName = new File(path).getName();
+                fileName = new File(httpUrl.path()).getName();
             }
             
             // 清理非法文件名字符（可选但推荐）

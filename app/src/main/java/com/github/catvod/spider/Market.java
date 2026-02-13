@@ -97,21 +97,29 @@ public class Market extends Spider {
             setBusy(true);
             Init.run(this::setDialog, 500);
             Response response = OkHttp.newCall(action);
-            String finalUrl = response.request().url().toString(); // 获取最终URL
+            String finalUrl = response.request().url().toString();
             okhttp3.HttpUrl httpUrl = okhttp3.HttpUrl.get(finalUrl);
             
-            // 优先从 download_name 参数获取
-            String fileName = httpUrl.queryParameter("download_name");
-            if (fileName == null || fileName.isEmpty()) {
-                // 否则回退到路径
-                fileName = new File(httpUrl.encodedPath()).getName();
-            }
-                        
-            // 解码 URL 编码的中文
-            try {
-                fileName = java.net.URLDecoder.decode(fileName, "UTF-8");
-            } catch (Exception ignored) {}
+            String fileName = null;
             
+            // 1. 优先从 Content-Disposition 获取
+            String contentDisposition = response.header("Content-Disposition");
+            if (contentDisposition != null) {
+                fileName = parseFileNameFromContentDisposition(contentDisposition);
+            }
+            
+            // 2. 最后回退到 URL 路径（使用 path() 而非 encodedPath()）
+            if (fileName == null || fileName.isEmpty()) {
+                String path = httpUrl.path(); // 已解码
+                fileName = new File(path).getName();
+            }
+            
+            // 清理非法文件名字符（可选但推荐）
+            if (fileName == null || fileName.isEmpty()) {
+                fileName = "downloaded_file";
+            }
+            fileName = sanitizeFileName(fileName); // 移除 \ / : * ? " < > | 等
+
             File file = Path.create(new File(Path.download(), fileName));
             download(file, response.body().byteStream(), Double.parseDouble(response.header("Content-Length", "1")));
             if (file.getName().startsWith("__") &&file.getName().endsWith(".png")) {
@@ -135,6 +143,27 @@ public class Market extends Spider {
             dismiss();
             return Result.notify(e.getMessage());
         }
+    }
+
+    private static String parseFileNameFromContentDisposition(String disposition) {
+        if (disposition == null) return null;
+        String regex = "filename\\s*=\\s*\"?([^\";]+)\"?";
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(regex, java.util.regex.Pattern.CASE_INSENSITIVE).matcher(disposition);
+        if (matcher.find()) {
+            String name = matcher.group(1).trim();
+            try {
+                // 尝试按 RFC 5987 解码（如 filename*=UTF-8''%E6%B5%8B%E8%AF%95.txt）
+                if (name.startsWith("UTF-8''")) {
+                    return java.net.URLDecoder.decode(name.substring(7), "UTF-8");
+                }
+            } catch (Exception ignored) {}
+            return name;
+        }
+        return null;
+    }
+
+    private static String sanitizeFileName(String name) {
+        return name.replaceAll("[\\\\/:*?\"<>|]", "_");
     }
 
     private void download(File file, InputStream is, double length) throws Exception {

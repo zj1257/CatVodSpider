@@ -96,8 +96,8 @@ public class Market extends Spider {
             if (isBusy()) return "";
             setBusy(true);
             Init.run(this::setDialog, 500);
+            String fileName = Uri.parse(action).getLastPathSegment();
             Response response = OkHttp.newCall(action);
-            String fileName = response.request().url().lastPathSegment();
             
             // 尝试从 Content-Disposition 获取
             String contentDisposition = response.header("Content-Disposition");

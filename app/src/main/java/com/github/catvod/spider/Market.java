@@ -97,26 +97,18 @@ public class Market extends Spider {
             setBusy(true);
             Init.run(this::setDialog, 500);
             Response response = OkHttp.newCall(action);
-            String finalUrl = response.request().url().toString();
-            okhttp3.HttpUrl httpUrl = okhttp3.HttpUrl.get(finalUrl);
+            String fileName = response.request().url().lastPathSegment();
             
-            String fileName = null;
-            
-            // 1. 优先从 Content-Disposition 获取
+            // 尝试从 Content-Disposition 获取
             String contentDisposition = response.header("Content-Disposition");
             if (contentDisposition != null) {
                 fileName = parseFileNameFromContentDisposition(contentDisposition);
             }
-            
-            // 2. 最后回退到 URL 路径（使用 path() 而非 encodedPath()）
             if (fileName == null || fileName.isEmpty()) {
-                fileName = new File(httpUrl.path()).getName();
+                fileName = "download_file";
             }
-            
-            // 清理非法文件名字符（可选但推荐）
-            if (fileName == null || fileName.isEmpty()) {
-                fileName = "downloaded_file";
-            }
+
+            // 清理非法文件名字符
             fileName = sanitizeFileName(fileName); // 移除 \ / : * ? " < > | 等
 
             File file = Path.create(new File(Path.download(), fileName));

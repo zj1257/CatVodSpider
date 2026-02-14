@@ -42,7 +42,7 @@ public class Init {
 
     public static void init(Context context) {
         get().app = ((Application) context);
-        SpiderDebug.log("自定義爬蟲代碼載入成功！");
+        SpiderDebug.log("自定义爬虫代码载入成功！");
         Proxy.init();
     }
 
@@ -62,7 +62,7 @@ public class Init {
         try {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
             if (context().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) return;
-            Notify.show("請允許儲存權限");
+            Notify.show("请允许存储权限");
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -104,10 +104,16 @@ public class Market extends Spider {
             if (contentDisposition != null) {
                 fileName = parseFileNameFromContentDisposition(contentDisposition);
             }
+            
             if (fileName == null || fileName.isEmpty()) {
                 fileName = "download_file";
             }
-
+            
+            // 解码 URL 编码的中文
+            try {
+                fileName = java.net.URLDecoder.decode(fileName, "UTF-8");
+            } catch (Exception ignored) {}
+            
             // 清理非法文件名字符
             fileName = sanitizeFileName(fileName); // 移除 \ / : * ? " < > | 等
 
